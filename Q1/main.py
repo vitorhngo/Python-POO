@@ -9,20 +9,28 @@ S = n * (a1 + an) / 2).
 
 class ProgressaoAritmetica:
     def __init__(self, n: int, a1: float, r: float) -> None:
-        self.n = n
-        self.a1 = a1
-        self.r = r
+        self.__n = n
+        self.__a1 = a1
+        self.__r = r
+
+    def get(self, attr: str) -> None:
+        cls_name = self.__class__.__name__
+        return self.__getattribute__(f"_{cls_name}__{attr}")
+
+    def set(self, attr: str, value: any) -> None:
+        cls_name = self.__class__.__name__
+        return self.__setattr__(f"_{cls_name}__{attr}", value)
 
     def somar(self) -> float:
         # ultimo_t = primeiro_t + razão * (qnt_t - 1)
-        ultimo_termo = self.a1 + self.r * (self.n - 1)
-        return self.n * (self.a1 + ultimo_termo) / 2
+        ultimo_termo = self.__a1 + self.__r * (self.__n - 1)
+        return self.__n * (self.__a1 + ultimo_termo) / 2
     
     def gerar_termos(self) -> list[float]:
-        termos = [self.a1]
-        value = self.a1
-        for _ in range(self.n - 1):
-            value += self.r
+        termos = [self.__a1]
+        value = self.__a1
+        for _ in range(self.__n - 1):
+            value += self.__r
             termos.append(value)
         return termos
 

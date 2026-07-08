@@ -56,7 +56,7 @@ def exibir_menu(options: dict[str, tuple[str, function]]):
         print(f"[{key}] {value[0]}")
 
 def logar():
-    usuario_id = input("Usuário (id)")
+    usuario_id = input("Usuário (id): ")
     global usuario_logado
     usuario_logado = usuarios[usuario_id]
 
