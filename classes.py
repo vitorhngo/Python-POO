@@ -4,13 +4,14 @@ class Livro:
         self.__autor = autor
         self.__id = id
     
-    def get(self, atr: str):
+    # -- Auxiliar
+    def get(self, attr: str):
         cls_name = self.__class__.__name__
-        return self.__getattribute__(f"_{cls_name}__{atr}")
+        return self.__getattribute__(f"_{cls_name}__{attr}")
 
-    def set(self, atr: str, value: str):
+    def set(self, attr: str, value: str):
         cls_name = self.__class__.__name__
-        return self.__setattr__(f"_{cls_name}__{atr}", value)
+        return self.__setattr__(f"_{cls_name}__{attr}", value)
 
 class Usuario:
     def __init__(self, nome: str, matricula: int):
@@ -19,17 +20,18 @@ class Usuario:
         self.__livros_emprestados = []
 
     # -- Auxiliar
-    def get(self, atr: str) -> any:
+    def get(self, attr: str) -> None:
         cls_name = self.__class__.__name__
-        return self.__getattribute__(f"_{cls_name}__{atr}")
+        return self.__getattribute__(f"_{cls_name}__{attr}")
     
-    def set(self, atr: str, value: str) -> None:
+    def set(self, attr: str, value: str) -> None:
         cls_name = self.__class__.__name__
-        return self.__setattr__(f"_{cls_name}__{atr}", value)
+        return self.__setattr__(f"_{cls_name}__{attr}", value)
 
     # -- Consulta
-    def emprestar_livro(self, livro: any) -> None:
+    def pegar_livro_emprestado(self, livro) -> None:
         self.__livros_emprestados.append(livro)
+        print(f"{self.__nome} pegou o livro {livro.get("titulo")} emprestado.")
 
     def devolver_livro(self, id_livro: int) -> None:
         for livro in self.__livros_emprestados:
@@ -43,34 +45,95 @@ class Usuario:
         if not self.__livros_emprestados:
             print(f"Nenhum livro emprestado.")
         else:
-            a = self.__livros_emprestados
-            print(*a, sep="\n")
             print("\nLivros emprestados:")
             for livro in self.__livros_emprestados:
                 print(f"- {livro.get("titulo")} (id: {livro.get("id")})")
             print()
 
+# Interface
+def exibir_menu(options: dict[str, tuple[str, function]]):
+    for key, value in options.items():
+        print(f"[{key}] {value[0]}")
 
+def logar():
+    usuario_id = input("Usuário (id)")
+    global usuario_logado
+    usuario_logado = usuarios[usuario_id]
 
-def main():
-    # cadastrar livro
-    # cadastrar usuário
-    # emprestar livro
-    # devolver livro
-    # listar livros emprestados
-    livro1 = Livro("O Pequeno Príncipe", "Antoine de Saint-Exupéry", 1)
-    livro2 = Livro("Capitães da Areia", "Jorge Amado", 2)
+def deslogar():
+    global usuario_logado
+    usuario_logado = None
 
-    usuario = Usuario("Vitor", 1)
+def criar_usuario():
+    print("\nCadastrar usuário")
+    nome = input("Nome: ")
+    usuario = Usuario(nome, len(usuarios) + 1)
+    usuarios[usuario.get("matricula")] = usuario
 
-    usuario.emprestar_livro(livro1)
-    usuario.emprestar_livro(livro2)
+    print(f"\n{usuario.get("nome")} cadastrado(a) com sucesso!\n")
 
-    usuario.listar_livros_emprestados()
+    escolha = input("Entrar com o usuário criado?\n[1] Sim\n[2] Não\nEscolha: ")
+    if escolha == "1":
+        global usuario_logado
+        usuario_logado = usuario
 
-    usuario.devolver_livro(1)
+def criar_livro():
+    print("\nCadastrar livro")
+    titulo = input("Título: ")
+    autor = input("Autor: ")
+    livro = Livro(titulo, autor, len(livros) + 1)
+    livros[livro.get("id")] = livro
+    print(f"\n{livro.get("titulo")} cadastrado com sucesso!\n")
 
+def emprestar_livro():
+    print("\nEmprestar livro")
+    if not usuario_logado:
+        usuario_id = int(input("Usuário (ID): "))
+
+    usuario = usuario_logado or usuarios[usuario_id]
+    
+    livro_id = int(input("Livro (ID): "))
+    livro = livros[livro_id]
+
+    usuario.pegar_livro_emprestado(livro)
+    
+def devolver_livro():
+    print("\nDevolver livro")
+    if not usuario_logado:
+        usuario_id = int(input("Usuário (ID): "))
+    livro_id = int(input("Livro (ID): "))
+    
+    usuario = usuario_logado or usuarios[usuario_id]
+    usuario.devolver_livro(livro_id)
+
+def listar_livros_emprestados():
+    print("\nListar livros emprestados")
+    if not usuario_logado:
+        usuario_id = int(input("Usuário (ID): "))
+
+    usuario = usuario_logado or usuarios[usuario_id]
     usuario.listar_livros_emprestados()
 
 if __name__ == "__main__":
-    main()
+    usuarios = {}
+    usuario_logado = None
+    livros = {}
+    menu = {
+        "1": ("Cadastrar livro", criar_livro),
+        "2": ("Cadastrar usuário", criar_usuario),
+        "3": ("Emprestar livro", emprestar_livro),
+        "4": ("Devolver livro", devolver_livro),
+        "5": ("Listar livros emprestados", listar_livros_emprestados),
+        "6": ("Login", logar),
+        "7": ("Logout", deslogar),
+        "0": ("Sair", quit)
+    }
+    
+    while True:
+        print()
+        exibir_menu(menu)
+        escolha = input("Escolha: ")
+        try:
+            menu[escolha][1]()
+        except KeyError as e:
+            print("Escolha uma opção válida.")
