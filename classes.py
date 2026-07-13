@@ -3,15 +3,30 @@ class Livro:
         self.__titulo = titulo
         self.__autor = autor
         self.__id = id
+        self.__algo = ""
+
     
     # -- Auxiliar
     def get(self, attr: str):
         cls_name = self.__class__.__name__
+
+        print()
+        print()
+        print()
+        print(f"_{cls_name}__{attr}")
+        print()
+        print()
+        print()
+
         return self.__getattribute__(f"_{cls_name}__{attr}")
 
     def set(self, attr: str, value: str):
         cls_name = self.__class__.__name__
         return self.__setattr__(f"_{cls_name}__{attr}", value)
+
+l = Livro("a","a", 0)
+
+print(l.get("titulo"), l.get("algo"))
 
 class Usuario:
     def __init__(self, nome: str, matricula: int):

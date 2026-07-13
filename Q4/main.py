@@ -22,12 +22,27 @@ class Produto:
         self.__nome = nome
         self.__preco = preco
         self.__quantidade = quantidade
+        self.validate()
     
+    def validate(self):
+        #erros = ""
+        if self.__preco <= 0:
+            #erros += "Preço não pode ser negativo.\n"
+            #erros.append(ValueError("Preço não pode ser negativo."))
+            raise ValueError("Preço não pode ser negativo.")
+        if self.__quantidade <= 0:
+            #erros += "A quantidade não pode ser negativa\n"
+            #erros.append(ValueError("Preço não pode ser negativo."))
+            raise ValueError("A quantidade não pode ser negativa")
+        #if erros:
+        #    raise ValueError(erros)
+
     def get(self, attr: str) -> None:
         cls_name = self.__class__.__name__
         return self.__getattribute__(f"_{cls_name}__{attr}")
 
     def set(self, attr: str, value: any) -> None:
+        self.validate()
         cls_name = self.__class__.__name__
         return self.__setattr__(f"_{cls_name}__{attr}", value)
     
@@ -66,13 +81,67 @@ class CarrinhoDeCompras():
     def calcular_valor_total(self) -> float:
         return reduce(lambda x, p: x + p.get("preco"), self.__produtos, 0)
 
+# Interface
+def exibir_menu(options: dict[str, tuple[str, function]]):
+    for key, value in options.items():
+        print(f"[{key}] {value[0]}")
+
+def mostrar_carrinho():
+    carrinho.listar()
+    pass
+
+def adicionar_produtos():
+    produtos = []
+    while True:
+        print("Adicionar produtos ao carrinho:")
+        produto = Produto("", 0.0, 0)
+
+        #for _, in range(3):
+        #    try:
+        
+        try:
+            nome = input("Nome: ")
+            produto.set('nome', nome)
+
+
+        try:
+            nome = input("Nome: ")
+            preco = float(input("Preço: "))
+            quantidade = int(input("Quantidade: "))
+            #produto = Produto(nome, preco, quantidade)
+        except ValueError as e:
+            print(f"{e}\nTente novamente.\n")
+            continue
+        else:
+            produtos.append(produto)
+        continuar = input("Adicionar mais um produto ao carrinho?\n[1] Sim\n[2] Não")
+        if continuar == "1":
+            continue
+        else: break
+
+    carrinho.adicionar(produtos)
+
+def remover_produtos():
+    pass
 
 if __name__ == "__main__":
-    p = Produto("Algodão", 10.0, 2)
+    
     p2 = Produto("Teste", 20.0, 1)
 
     carrinho = CarrinhoDeCompras()
-    carrinho.adicionar([p, p2])
-    total = carrinho.calcular_valor_total()
-    print(total)
-    carrinho.listar()
+
+    menu = {
+        "1": ("Mostrar carrinho", carrinho.listar),
+        "2": ("Adicionar produtos", adicionar_produtos),
+        "3": ("Remover produtos", remover_produtos),
+        "0": ("Sair", quit)
+    }
+    
+    while True:
+        print()
+        exibir_menu(menu)
+        escolha = input("Escolha: ")
+        try:
+            menu[escolha][1]()
+        except KeyError as e:
+            print("Escolha uma opção válida.")
